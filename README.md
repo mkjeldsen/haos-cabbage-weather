@@ -23,7 +23,7 @@ Below the scene:
 - An hourly chart where the weather icons ride the temperature curve, with sunrise and sunset marked.
 - An optional daily forecast.
 
-**Scenes:** Forest · Rural · City · Seaside
+**Scenes:** Forest · Rural · Suburb · City · Seaside
 **Art styles:** Pixel art (default) · Flat vector
 
 ## Install
@@ -39,7 +39,7 @@ Works on every install type, including Home Assistant Container. Turn on *Advanc
 Settings → Dashboards → ⋮ → **Resources** and add this URL as a *JavaScript module*:
 
 ```
-https://cdn.jsdelivr.net/gh/mkjeldsen/haos-cabbage-weather@v0.1.1/dist/cabbage-weather-card.js
+https://cdn.jsdelivr.net/gh/mkjeldsen/haos-cabbage-weather@v0.1.2/dist/cabbage-weather-card.js
 ```
 
 To update, change the version in the URL to the newest [release](https://github.com/mkjeldsen/haos-cabbage-weather/releases).
@@ -57,7 +57,7 @@ Add the card from the dashboard editor (search for "Cabbage Weather"). All optio
 type: custom:cabbage-weather-card
 entity: weather.forecast_home
 name: Hjem            # optional, defaults to the entity name
-scene: rural          # forest | rural | city | seaside
+scene: rural          # forest | rural | suburb | city | seaside
 style: pixel          # pixel | flat
 animations: true
 easter_eggs: true

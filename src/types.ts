@@ -1,6 +1,6 @@
 import type { Holiday } from './holidays';
 
-export type SceneId = 'forest' | 'rural' | 'city' | 'seaside';
+export type SceneId = 'forest' | 'rural' | 'suburb' | 'city' | 'seaside';
 export type ArtStyle = 'pixel' | 'flat';
 export type TimeOfDay = 'day' | 'dawn' | 'dusk' | 'night';
 export type Season = 'spring' | 'summer' | 'autumn' | 'winter';

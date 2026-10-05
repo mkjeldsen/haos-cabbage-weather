@@ -5,7 +5,7 @@ import { unsafeSVG } from 'lit/directives/unsafe-svg.js';
 import { renderFlatChart } from './chart/flat';
 import { availableMetrics, buildChart, type ChartModel, METRIC_LABELS } from './chart/model';
 import { renderPixelChart } from './chart/pixel';
-import { CARD_VERSION, DEFAULTS } from './const';
+import { CARD_VERSION, DEFAULTS, withDefaults } from './const';
 import {
   conditionIcon, debugOffset, feelsLike, solarPosition, type IconKind, isNightAt, rainSoon, sceneState, sunTimes, toCelsius, toMs, todayRange, unitsOf,
   type Units, windArrow,
@@ -81,7 +81,7 @@ export class CabbageWeatherCard extends LitElement {
 
   setConfig(config: CabbageWeatherConfig): void {
     if (!config?.entity || !config.entity.startsWith('weather.')) throw new Error('Choose a weather entity (weather.*).');
-    this.config = { ...DEFAULTS, ...config } as Config;
+    this.config = withDefaults(config) as Config;
     this.debugShift = debugOffset(config.debug_date, new Date());
     if (this.config.style === 'pixel') ensurePixelFont();
   }
@@ -524,7 +524,9 @@ window.customCards = window.customCards ?? [];
 window.customCards.push({
   type: 'cabbage-weather-card',
   name: 'Cabbage Weather',
-  description: 'A playful, illustrated weather card with animated scenes (pixel art or flat vector).',
+  description: navigator.language?.toLowerCase().startsWith('da')
+    ? 'Et legesygt, illustreret vejrkort med animerede landskaber (pixelkunst eller flad vektor).'
+    : 'A playful, illustrated weather card with animated scenes (pixel art or flat vector).',
   preview: true,
   documentationURL: 'https://github.com/mkjeldsen/haos-cabbage-weather',
 });

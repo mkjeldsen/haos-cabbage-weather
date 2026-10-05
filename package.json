@@ -1,6 +1,6 @@
 {
   "name": "cabbage-weather-card",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A playful, illustrated weather card for Home Assistant, inspired by Carrot Weather.",
   "type": "module",
   "license": "MIT",

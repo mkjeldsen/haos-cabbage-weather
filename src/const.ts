@@ -1,6 +1,12 @@
 import type { CabbageWeatherConfig } from './types';
 
-export const CARD_VERSION = '0.1.1';
+export const CARD_VERSION = '0.1.2';
+
+/** Config merged over the defaults; undefined/null values don't erase a default. */
+export function withDefaults<T extends object>(config: T): typeof DEFAULTS & T {
+  const clean = Object.fromEntries(Object.entries(config).filter(([, v]) => v !== undefined && v !== null)) as T;
+  return { ...DEFAULTS, ...clean };
+}
 
 export const DEFAULTS: Required<Omit<CabbageWeatherConfig, 'type' | 'entity' | 'name' | 'debug_date'>> = {
   scene: 'rural',

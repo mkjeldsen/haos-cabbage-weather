@@ -129,7 +129,7 @@ function controls(): void {
   const num = (k: string, min: number, max: number) => `<label>${k} <input type="number" data-k="${k}" min="${min}" max="${max}" value="${(ui as any)[k]}" style="width:4.5em"></label>`;
   el.innerHTML = [
     opt('condition', CONDITIONS),
-    opt('scene', ['forest', 'rural', 'city', 'seaside']),
+    opt('scene', ['forest', 'rural', 'suburb', 'city', 'seaside']),
     opt('layout', ['both', 'pixel', 'flat']),
     num('temp', -20, 40), num('wind', 0, 90), num('elevation', -30, 60), num('month', 0, 11),
     `<label><input type="checkbox" data-k="daily" ${ui.daily ? 'checked' : ''}> daily</label>`,
@@ -168,6 +168,33 @@ function mount(): void {
   }
 }
 
+// ?editor=1[&lang=da]: render the card editor with simple stand-ins for HA's ha-form / ha-alert.
+if (q.get('editor') === '1') {
+  if (!customElements.get('ha-form')) {
+    customElements.define('ha-form', class extends HTMLElement {
+      schema: any[] = []; data: any = {}; computeLabel: any; computeHelper: any;
+      connectedCallback() { requestAnimationFrame(() => this.draw()); }
+      draw() {
+        const flat = (list: any[]): any[] => list.flatMap((f) => (f.schema ? flat(f.schema) : [f]));
+        this.innerHTML = flat(this.schema).map((f) => {
+          const opts = f.selector?.select?.options?.map((o: any) => o.label).join(' · ');
+          const help = this.computeHelper?.(f);
+          return `<div style="padding:6px 0;border-bottom:1px solid var(--divider-color)"><b>${this.computeLabel?.(f)}</b>
+            <code style="color:var(--secondary-text-color)">${JSON.stringify(this.data[f.name] ?? '')}</code>
+            ${opts ? `<div style="font-size:12px">${opts}</div>` : ''}${help ? `<div style="font-size:12px;color:var(--secondary-text-color)">${help}</div>` : ''}</div>`;
+        }).join('');
+      }
+    });
+    customElements.define('ha-alert', class extends HTMLElement {
+      connectedCallback() { this.style.cssText = 'display:block;margin-top:12px;padding:10px 12px;border-radius:8px;background:rgba(3,169,244,.12)'; this.insertAdjacentHTML('afterbegin', `<b>${(this as any).title || ''}</b>`); }
+    });
+  }
+  const ed = document.createElement('cabbage-weather-card-editor') as any;
+  const h = { ...hass(), locale: { language: q.get('lang') ?? 'en' } };
+  ed.hass = h;
+  ed.setConfig({ type: 'custom:cabbage-weather-card', entity: 'weather.forecast_home', style: q.get('style') ?? undefined });
+  document.getElementById('cards')!.append(ed);
+} else {
 // ?shot=1: only the card, at a fixed width, for README screenshots.
 if (q.get('shot') === '1') {
   document.body.classList.add('shot');
@@ -176,3 +203,4 @@ if (q.get('shot') === '1') {
 }
 controls();
 mount();
+}

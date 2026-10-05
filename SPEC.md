@@ -27,6 +27,7 @@ A playful Home Assistant Lovelace weather card inspired by Carrot Weather.
 | Rural   | wind turbine (speed ∝ wind), tractor in field, cow     |
 | City    | Copenhagen-ish street: cars, cyclists, lit windows at night |
 | Seaside | lighthouse (beam at night), sailboat, waves            |
+| Suburb  | parcelhuse, kid on a trampoline, robot lawnmower, Dannebrog (lowered at sunset, pennant at night) |
 
 **Weather FX — full mood:** rain/snow particles, fog layers, lightning flashes, sky colour + cloud density by condition; wind drives sway, turbine speed, blowing leaves.
 
@@ -56,7 +57,7 @@ The editor spells out the trade-offs:
 
 ## Tech
 - Lit 3 + TypeScript, Rollup → single `dist/cabbage-weather-card.js`
-- Visual editor (ha-form schema): entity, scene, name, show daily, hours (12/24/48), metrics, animations, easter eggs, sun entity
+- Visual editor (ha-form schema), Danish or English following HA's language: entity, scene, name, show daily, hours (12/24/48), metrics, animations, easter eggs, sun entity
 - HACS custom repo: `hacs.json`, GitHub Action building release asset
 - Tap → more-info dialog
 
