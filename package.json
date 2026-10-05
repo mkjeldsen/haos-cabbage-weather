@@ -1,0 +1,29 @@
+{
+  "name": "cabbage-weather-card",
+  "version": "0.1.0",
+  "description": "A playful, illustrated weather card for Home Assistant, inspired by Carrot Weather.",
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "build": "rollup -c",
+    "watch": "rollup -c -w",
+    "typecheck": "tsc --noEmit",
+    "dev": "rollup -c -w --environment DEV"
+  },
+  "dependencies": {
+    "lit": "^3.2.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "^16.0.0",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^12.1.0",
+    "rollup": "^4.24.0",
+    "tslib": "^2.8.0",
+    "typescript": "^5.6.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mkjeldsen/haos-cabbage-weather.git"
+  },
+  "homepage": "https://github.com/mkjeldsen/haos-cabbage-weather"
+}

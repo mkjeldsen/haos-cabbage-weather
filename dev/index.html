@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="da">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cabbage Weather Dev</title>
+<style>
+  body {
+    margin: 0; font: 14px/1.4 Roboto, system-ui, sans-serif; background: #f0f2f5;
+    --primary-text-color: #212121; --secondary-text-color: #727272; --divider-color: rgba(0,0,0,.12);
+    --primary-color: #03a9f4; --text-primary-color: #fff; --card-background-color: #fff;
+    color: var(--primary-text-color);
+  }
+  body.dark {
+    background: #111; --primary-text-color: #e1e1e1; --secondary-text-color: #9b9b9b; --divider-color: rgba(255,255,255,.12);
+    --card-background-color: #1c1c1c;
+  }
+  .page { max-width: 1100px; margin: 0 auto; padding: 16px; }
+  #controls { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; margin-bottom: 16px; }
+  #cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 20px; align-items: start; }
+  h3 { margin: 0 0 6px; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--secondary-text-color); }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1 style="margin:0 0 12px;font-size:20px">Cabbage Weather · dev harness</h1>
+  <div id="controls"></div>
+  <div id="cards"></div>
+</div>
+<script type="module" src="./build/harness.js"></script>
+</body>
+</html>

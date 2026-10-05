@@ -1,0 +1,765 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cabbage Weather Styles</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Pixelify+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f3f0e9; --card: #ffffff; --text: #1d2330; --muted: #6b7280; --line: #e6e3dc;
+    --accent: #ff9f1c; --pill: #2f7bf6; --pill-text: #2f7bf6; --pill-active-text: #ffffff;
+    --seg-bg: #e7e3da; --seg-active: #ffffff;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #121418; --card: #1d2027; --text: #eef0f4; --muted: #9aa3b2; --line: #2c3039;
+      --accent: #ffb347; --pill: #5b9cff; --pill-text: #8dbbff; --pill-active-text: #0f1a2e;
+      --seg-bg: #23272f; --seg-active: #343a45;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #121418; --card: #1d2027; --text: #eef0f4; --muted: #9aa3b2; --line: #2c3039;
+    --accent: #ffb347; --pill: #5b9cff; --pill-text: #8dbbff; --pill-active-text: #0f1a2e;
+    --seg-bg: #23272f; --seg-active: #343a45;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: Nunito, system-ui, sans-serif; }
+  .page { max-width: 1100px; margin: 0 auto; padding: 28px 16px 48px; }
+  .page-head h1 { margin: 0; font-size: 28px; font-weight: 900; letter-spacing: -.01em; }
+  .page-head h1 span { color: var(--muted); font-weight: 700; }
+  .page-head p { margin: 6px 0 0; color: var(--muted); max-width: 70ch; line-height: 1.45; }
+
+  .controls { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; margin: 22px 0 26px; }
+  .ctl { display: flex; align-items: center; gap: 8px; }
+  .ctl > span { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+  .seg { display: inline-flex; background: var(--seg-bg); border-radius: 10px; padding: 3px; gap: 2px; flex-wrap: wrap; }
+  .seg button, .toggle {
+    font: inherit; font-weight: 700; font-size: 14px; color: var(--text); background: transparent;
+    border: 0; border-radius: 8px; padding: 6px 11px; cursor: pointer;
+  }
+  .seg button[aria-pressed="true"] { background: var(--seg-active); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+  .toggle { background: var(--seg-bg); }
+
+  .compare { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 28px; align-items: start; }
+  .compare h2 { margin: 0 0 10px; font-size: 15px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+  .notes { margin: 14px 0 0; padding-left: 18px; color: var(--muted); font-size: 14px; line-height: 1.5; }
+
+  /* ---------- card shell ---------- */
+  .card { container-type: inline-size; background: var(--card); overflow: hidden; }
+  .scene { position: relative; aspect-ratio: 480 / 264; overflow: hidden; }
+  .art, .art > svg, .art > canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .hdr { position: absolute; inset: 0; color: #fff; background: linear-gradient(180deg, rgba(8,20,45,.22) 0%, rgba(8,20,45,.12) 45%, rgba(8,20,45,0) 62%); display: flex; flex-direction: column; align-items: center; padding: 3cqw 4cqw; pointer-events: none; }
+  .hbar { width: 100%; display: flex; justify-content: space-between; align-items: center; font-size: 3cqw; font-weight: 800; }
+  .loc { display: inline-flex; align-items: center; gap: .8cqw; }
+  .loc svg { width: 2.8cqw; height: 2.8cqw; }
+  .chips { display: flex; gap: 1.4cqw; }
+  .chip { font-size: 2.6cqw; padding: .5cqw 1.6cqw; background: rgba(255,255,255,.2); border-radius: 99px; backdrop-filter: blur(2px); }
+  .now { display: flex; align-items: center; gap: 2cqw; margin-top: 1cqw; }
+  .hicon { width: 12cqw; height: 12cqw; }
+  .temp { font-size: 13cqw; font-weight: 800; line-height: 1; }
+  .meta { display: flex; flex-direction: column; font-size: 2.9cqw; font-weight: 700; line-height: 1.35; opacity: .95; }
+  .snark { margin: 1.4cqw 0 0; max-width: 78%; text-align: center; font-size: 3.3cqw; font-weight: 700; line-height: 1.3; }
+
+  .hourly { padding: 3cqw 3.4cqw 3.6cqw; }
+  .htitle { display: flex; align-items: center; gap: 1.2cqw; font-size: 2.6cqw; font-weight: 800; letter-spacing: .06em; color: var(--muted); }
+  .htitle svg { width: 2.8cqw; height: 2.8cqw; }
+  .chart { margin-top: 1cqw; }
+  .chart svg, .chart canvas { width: 100%; display: block; }
+  .tabs { display: flex; gap: 1.6cqw; overflow-x: auto; padding: 1.6cqw 0 .4cqw; scrollbar-width: none; }
+  .tabs button { flex: none; font: inherit; font-size: 2.8cqw; font-weight: 700; cursor: pointer; white-space: nowrap; background: transparent; color: var(--pill-text); }
+
+  /* ---------- flat ---------- */
+  .card.flat { border-radius: 20px; box-shadow: 0 8px 24px rgba(20,30,50,.12); }
+  .flat .hdr { text-shadow: 0 1px 3px rgba(0,30,60,.45), 0 0 10px rgba(0,30,60,.2); }
+  .flat .tabs button { border: 1.5px solid var(--pill); border-radius: 99px; padding: .9cqw 2.6cqw; }
+  .flat .tabs button[aria-pressed="true"] { background: var(--pill); color: var(--pill-active-text); }
+
+  /* ---------- pixel ---------- */
+  .card.pixel { border: 3px solid var(--text); border-radius: 4px; box-shadow: 5px 5px 0 rgba(20,25,35,.35); }
+  .pixel, .pixel button { font-family: "Pixelify Sans", monospace; }
+  .pixel canvas { image-rendering: pixelated; image-rendering: crisp-edges; }
+  .pixel .hdr { text-shadow: .5cqw .5cqw 0 rgba(10,20,40,.45); }
+  .pixel .temp { font-weight: 700; font-size: 12.5cqw; }
+  .pixel .chip { border-radius: 0; background: rgba(10,20,40,.28); box-shadow: inset 0 0 0 .4cqw rgba(255,255,255,.35); backdrop-filter: none; }
+  .pixel .tabs button { border: 2px solid var(--pill); border-radius: 0; padding: .8cqw 2.4cqw; box-shadow: 2px 2px 0 var(--pill); }
+  .pixel .tabs button[aria-pressed="true"] { background: var(--pill); color: var(--pill-active-text); }
+
+  /* ---------- flat scene animation ---------- */
+  .flat svg .drift   { animation: drift linear infinite; }
+  .flat svg .spin    { animation: spin linear infinite; }
+  .flat svg .sway    { animation: sway ease-in-out infinite; }
+  .flat svg .drive   { animation: drive linear infinite; }
+  .flat svg .bounce  { animation: bounce .45s ease-in-out infinite; }
+  .flat svg .puff    { animation: puff 1.8s ease-out infinite; }
+  .flat svg .fall    { animation: fall linear infinite; }
+  .flat svg .flutter { animation: flutter 2.4s ease-in-out infinite; }
+  .flat svg .blow    { animation: blow linear infinite; }
+  .flat svg .twinkle { animation: twinkle 3.5s ease-in-out infinite; }
+  .flat svg .graze   { animation: graze 7s ease-in-out infinite; }
+  body.paused .flat svg * { animation-play-state: paused !important; }
+
+  @keyframes drift   { from { transform: translateX(-90px); } to { transform: translateX(570px); } }
+  @keyframes spin    { to { transform: rotate(360deg); } }
+  @keyframes sway    { 0%, 100% { transform: rotate(calc(var(--amp) * -1)); } 50% { transform: rotate(var(--amp)); } }
+  @keyframes drive   { from { transform: translateX(-60px); } to { transform: translateX(540px); } }
+  @keyframes bounce  { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-1px); } }
+  @keyframes puff    { from { transform: translate(0, 0) scale(.4); opacity: .75; } to { transform: translate(-9px, -16px) scale(1.5); opacity: 0; } }
+  @keyframes fall    { from { transform: translate(0, -30px); } to { transform: translate(var(--dx), 290px); } }
+  @keyframes flutter { 0%, 100% { transform: translateX(-3px); } 50% { transform: translateX(3px); } }
+  @keyframes blow    { from { transform: translate(520px, 0) rotate(0deg); } to { transform: translate(-40px, 36px) rotate(-900deg); } }
+  @keyframes twinkle { 0%, 100% { opacity: .9; } 50% { opacity: .2; } }
+  @keyframes graze   { 0%, 62%, 100% { transform: rotate(0deg); } 70%, 90% { transform: rotate(-22deg); } }
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="page-head">
+    <h1>Cabbage Weather <span>· style mockup</span></h1>
+    <p>Same rural scene, same data, two art styles. Use the switches to try weather, time of day and dashboard theme on both cards at once. The illustrated header keeps its own palette; the hourly chart follows the (HA) theme.</p>
+  </header>
+
+  <div class="controls">
+    <div class="ctl"><span>Weather</span>
+      <div class="seg" data-key="weather">
+        <button data-v="sun">Sol</button><button data-v="cloudy">Skyet</button><button data-v="rain">Regn</button><button data-v="snow">Sne</button><button data-v="wind">Blæst</button>
+      </div>
+    </div>
+    <div class="ctl"><span>Time</span>
+      <div class="seg" data-key="time">
+        <button data-v="day">Dag</button><button data-v="dusk">Aften</button><button data-v="night">Nat</button>
+      </div>
+    </div>
+    <div class="ctl"><span>Theme</span>
+      <div class="seg" data-key="theme">
+        <button data-v="light">Lys</button><button data-v="dark">Mørk</button>
+      </div>
+    </div>
+    <button class="toggle" id="motion" aria-pressed="true">Animation: on</button>
+  </div>
+
+  <main class="compare">
+    <section>
+      <h2>A · Flat vector</h2>
+      <div class="card flat">
+        <div class="scene"><div class="art" id="flatArt"></div><div id="flatHdr"></div></div>
+        <div class="hourly">
+          <div class="htitle"></div>
+          <div class="chart" id="flatChart"></div>
+          <div class="tabs"></div>
+        </div>
+      </div>
+      <ul class="notes">
+        <li>Crisp at any size and on any screen density.</li>
+        <li>All motion is CSS transforms, so it costs almost no CPU.</li>
+        <li>Easiest style to extend with new scenes and props.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>B · Pixel art</h2>
+      <div class="card pixel">
+        <div class="scene"><div class="art"><canvas id="pixArt" width="160" height="88"></canvas></div><div id="pixHdr"></div></div>
+        <div class="hourly">
+          <div class="htitle"></div>
+          <div class="chart"><canvas id="pixChart" width="160" height="56"></canvas></div>
+          <div class="tabs"></div>
+        </div>
+      </div>
+      <ul class="notes">
+        <li>Retro charm that suits the cheeky tone.</li>
+        <li>Drawn on a 160×88 canvas at about 15 fps, so it's cheap but runs a small JS loop.</li>
+        <li>Sharpest at whole-number scales. Text uses a pixel font.</li>
+      </ul>
+    </section>
+  </main>
+</div>
+
+<script>
+/* ================= shared data ================= */
+const WX = {
+  sun:    { label: 'Sol', temp: 18, feels: 17, hi: 19, lo: 11, wind: 3, dir: '↗', hum: 58, icon: 'sun', windAmt: .15, clouds: 2,
+            snark: 'Solskin i Danmark. Nyd det, før nogen opdager fejlen.',
+            snarkNight: 'Klar nat. Perfekt til stjernekig – eller til at fryse.',
+            temps: [16, 17, 18, 18, 17, 15, 13, 12], icons: ['sun', 'sun', 'sun', 'partly', 'partly', 'sun', 'sun', 'sun'] },
+  cloudy: { label: 'Skyet', temp: 12, feels: 11, hi: 13, lo: 9, wind: 5, dir: '→', hum: 76, icon: 'cloud', windAmt: .3, clouds: 6,
+            snark: 'Gråvejr. Himlen har valgt sin yndlingsfarve igen.',
+            temps: [11, 12, 12, 12, 11, 10, 10, 9], icons: ['partly', 'cloud', 'cloud', 'cloud', 'partly', 'cloud', 'cloud', 'cloud'] },
+  rain:   { label: 'Regn', temp: 9, feels: 6, hi: 10, lo: 7, wind: 7, dir: '↘', hum: 93, icon: 'rain', windAmt: .45, clouds: 7,
+            snark: 'Det regner. Du bor i Danmark – hvad havde du regnet med?',
+            temps: [9, 9, 8, 8, 8, 7, 7, 7], icons: ['rain', 'rain', 'cloud', 'rain', 'rain', 'rain', 'cloud', 'rain'] },
+  snow:   { label: 'Sne', temp: -2, feels: -7, hi: 0, lo: -5, wind: 4, dir: '↓', hum: 88, icon: 'snow', windAmt: .25, clouds: 6,
+            snark: 'Sne! Nyd de fem minutter, før det bliver til slud.',
+            temps: [-1, -1, -2, -2, -3, -3, -4, -4], icons: ['snow', 'snow', 'cloud', 'snow', 'snow', 'cloud', 'snow', 'snow'] },
+  wind:   { label: 'Blæst', temp: 11, feels: 6, hi: 12, lo: 8, wind: 14, dir: '←', hum: 70, icon: 'wind', windAmt: 1, clouds: 4,
+            snark: 'Modvind i begge retninger. Det er ikke dig, det er Danmark.',
+            temps: [11, 11, 10, 10, 9, 9, 8, 8], icons: ['partly', 'wind', 'wind', 'partly', 'wind', 'wind', 'cloud', 'partly'] },
+};
+const HOUR_START = { day: 12, dusk: 16, night: 21 };
+const isNightHour = h => h >= 19 || h < 7;
+const hourIcon = (icon, h) => (isNightHour(h) && (icon === 'sun' || icon === 'partly')) ? 'moon' : icon;
+const hours = s => Array.from({ length: 8 }, (_, i) => (HOUR_START[s.time] + i) % 24);
+const headerIcon = s => {
+  const i = WX[s.weather].icon;
+  return s.time === 'night' && (i === 'sun' || i === 'partly') ? 'moon' : i;
+};
+
+const BASE = {
+  day:   { skyTop: '#3d9be9', skyBot: '#a8dbff', far: '#86c07a', mid: '#5fa955', front: '#4c9a48', road: '#d8b77a', stripe: '#86b94e',
+           house: '#f6f1e7', thatch: '#8b6a4a', barn: '#c9483d', tree: '#3e8a43', treeHi: '#6dbb5f', trunk: '#6b4a33', window: '#56708c', tower: '#f2f5f7' },
+  dusk:  { skyTop: '#33407e', skyBot: '#f7a072', far: '#6b876b', mid: '#557a55', front: '#466b48', road: '#b8946a', stripe: '#6d8a4a',
+           house: '#ead8c8', thatch: '#6e523d', barn: '#a83e3a', tree: '#355f3a', treeHi: '#52834e', trunk: '#4f3828', window: '#ffd36b', tower: '#eadbd2' },
+  night: { skyTop: '#0a1330', skyBot: '#26385f', far: '#22404a', mid: '#1c3540', front: '#162c36', road: '#3a4250', stripe: '#20404a',
+           house: '#7d8a9c', thatch: '#2e3340', barn: '#5a2e3a', tree: '#14303a', treeHi: '#1f4550', trunk: '#1f2228', window: '#ffd36b', tower: '#8d9bb0' },
+};
+
+function hexToRgb(h) { const n = parseInt(h.slice(1), 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; }
+function rgbToHex(c) { return '#' + c.map(v => Math.round(v).toString(16).padStart(2, '0')).join(''); }
+function mix(a, b, t) { const A = hexToRgb(a), B = hexToRgb(b); return rgbToHex(A.map((v, i) => v + (B[i] - v) * t)); }
+function rng(seed) {
+  return () => { seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+}
+
+function palette(s) {
+  const P = { ...BASE[s.time] };
+  const w = s.weather;
+  const nightK = s.time === 'night' ? 1 : s.time === 'dusk' ? .45 : 0;
+  if (w === 'cloudy' || w === 'rain' || w === 'snow') {
+    const g = w === 'rain' ? '#76818f' : w === 'snow' ? '#c5ced8' : '#9ba6b2';
+    const gd = mix(g, '#141a26', nightK * .85);
+    const k = w === 'rain' ? .75 : .6;
+    P.skyTop = mix(P.skyTop, gd, k); P.skyBot = mix(P.skyBot, gd, k * .85);
+  }
+  if (w === 'wind') P.skyTop = mix(P.skyTop, '#a9bccd', .15 * (1 - nightK));
+  if (w === 'rain') for (const k of ['far', 'mid', 'front', 'road', 'stripe', 'tree', 'treeHi']) P[k] = mix(P[k], '#1d2733', .15);
+  if (w === 'snow') {
+    const snow = { far: '#e3ecf4', mid: '#d9e5ef', front: '#edf3f8', road: '#c4d0dc', stripe: '#cbd8e4', thatch: '#eef3f7', treeHi: '#eef4f9', roofBarn: '#eef3f7' };
+    for (const k in snow) P[k] = mix(snow[k], '#3a4d6e', nightK * .5);
+  }
+  P.roofBarn = P.roofBarn || mix(P.barn, '#000000', .28);
+  P.cloud = mix({ sun: '#ffffff', cloudy: '#e4e9ef', rain: '#8b96a4', snow: '#e6ebf0', wind: '#f5f8fb' }[w], '#27314a', nightK * .65);
+  P.cloudShade = mix(P.cloud, '#3a4658', .22);
+  return P;
+}
+
+const PIN = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>';
+const CLOCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
+const TABS = ['Temp', 'Føles som', 'Nedbør %', 'Nedbør mm', 'Vind', 'Fugt', 'Skyer', 'UV'];
+
+function headerHTML(s, style) {
+  const W = WX[s.weather];
+  const icon = headerIcon(s);
+  const snark = (s.time === 'night' && W.snarkNight) || W.snark;
+  const iconHTML = style === 'flat'
+    ? `<svg class="hicon" viewBox="0 0 32 32">${flatIcon(icon, true)}</svg>`
+    : `<canvas class="hicon" width="9" height="9" data-icon="${icon}"></canvas>`;
+  return `<div class="hdr">
+    <div class="hbar"><span class="loc">${PIN} Hjem</span>
+      <span class="chips"><span class="chip">Vind ${W.wind} m/s ${W.dir}</span><span class="chip">Fugt ${W.hum}%</span></span></div>
+    <div class="now">${iconHTML}<span class="temp">${W.temp}°</span>
+      <span class="meta"><span>Føles som ${W.feels}°</span><span>↑${W.hi}° ↓${W.lo}°</span></span></div>
+    <p class="snark">${snark}</p>
+  </div>`;
+}
+
+/* ================= A · flat vector ================= */
+function flatIcon(kind, onSky) {
+  const cl = (dx, dy, dark) => {
+    const f = onSky ? (dark ? '#e3e9f0' : '#ffffff') : (dark ? '#c9d2dc' : '#eef2f6');
+    const st = onSky ? 'none' : (dark ? '#8f9cab' : '#aab6c3');
+    return `<path transform="translate(${dx} ${dy})" d="M8 26h16a6 6 0 0 0 .6-11.97A8 8 0 0 0 9.3 13.2 6.5 6.5 0 0 0 8 26z" fill="${f}" stroke="${st}" stroke-width="1.3" stroke-linejoin="round"/>`;
+  };
+  const sun = (cx, cy, r) => {
+    let rays = '';
+    for (let i = 0; i < 8; i++) {
+      const a = i * Math.PI / 4, c = Math.cos(a), s = Math.sin(a);
+      rays += `<line x1="${(cx + c * (r + 2.5)).toFixed(2)}" y1="${(cy + s * (r + 2.5)).toFixed(2)}" x2="${(cx + c * (r + 5.5)).toFixed(2)}" y2="${(cy + s * (r + 5.5)).toFixed(2)}"/>`;
+    }
+    return `<g stroke="#ffc22e" stroke-width="2.2" stroke-linecap="round">${rays}</g><circle cx="${cx}" cy="${cy}" r="${r}" fill="#ffc22e"/>`;
+  };
+  switch (kind) {
+    case 'sun': return sun(16, 16, 7);
+    case 'moon': return '<path d="M20 4a12 12 0 1 0 8 20A9.5 9.5 0 0 1 20 4z" fill="#f5e39a"/>';
+    case 'partly': return sun(12, 11, 5.5) + cl(3, 1);
+    case 'cloud': return cl(0, -2);
+    case 'rain': return cl(0, -4, true) + '<g stroke="#4aa3ff" stroke-width="2.2" stroke-linecap="round"><line x1="11" y1="25" x2="9.5" y2="29"/><line x1="17" y1="25" x2="15.5" y2="29"/><line x1="23" y1="25" x2="21.5" y2="29"/></g>';
+    case 'snow': { const f = onSky ? '#ffffff' : '#7cc0ff';
+      return cl(0, -4, true) + `<g fill="${f}"><circle cx="10" cy="26" r="1.7"/><circle cx="16" cy="28.5" r="1.7"/><circle cx="22" cy="26" r="1.7"/></g>`; }
+    case 'wind': return `<g fill="none" stroke="${onSky ? '#ffffff' : '#8aa2b8'}" stroke-width="2.4" stroke-linecap="round"><path d="M4 12h15a4 4 0 1 0-4-4"/><path d="M4 18h21a4 4 0 1 1-4 4"/><path d="M4 24h9"/></g>`;
+  }
+  return '';
+}
+
+const cloudShape = (f, sh) =>
+  `<ellipse cx="0" cy="4" rx="26" ry="9" fill="${sh}"/><g fill="${f}"><ellipse cx="0" cy="0" rx="26" ry="10"/><circle cx="-11" cy="-6" r="11"/><circle cx="5" cy="-12" r="14"/><circle cx="19" cy="-4" r="9"/></g>`;
+
+function turbine(x, hub, sc, P, dur, delay) {
+  const blades = [0, 120, 240].map(a => `<path transform="rotate(${a})" d="M-1.6 0 Q-2.6 -18 0 -36 Q1.4 -18 1.6 0Z" fill="${P.tower}"/>`).join('');
+  return `<g transform="translate(${x} ${hub}) scale(${sc})">
+    <path d="M-1.2 0 L1.2 0 L2.6 72 L-2.6 72Z" fill="${P.tower}"/>
+    <rect x="-2" y="-2.2" width="7" height="4.4" rx="1.5" fill="${P.tower}"/>
+    <g class="spin" style="animation-duration:${dur.toFixed(2)}s;animation-delay:${delay}s">${blades}</g>
+    <circle r="2.6" fill="${P.tower}"/></g>`;
+}
+
+function tree(x, y, s, P, wa, R) {
+  const amp = (1 + wa * 6).toFixed(1), dur = (3.2 - wa * 1.8 + R() * .6).toFixed(2);
+  return `<g transform="translate(${x} ${y}) scale(${s})"><g class="sway" style="--amp:${amp}deg;animation-duration:${dur}s;animation-delay:-${(R() * 2).toFixed(2)}s">
+    <rect x="-1.6" y="-14" width="3.2" height="14" rx="1" fill="${P.trunk}"/>
+    <circle cy="-22" r="10" fill="${P.tree}"/><circle cx="-3.5" cy="-25.5" r="5" fill="${P.treeHi}" opacity=".6"/></g></g>`;
+}
+
+function farm(P) {
+  const wins = [238, 247, 272, 281].map(x => `<rect x="${x}" y="182" width="5" height="5" rx=".8" fill="${P.window}"/>`).join('');
+  return `<rect x="232" y="176" width="58" height="18" fill="${P.house}"/>
+    <rect x="270" y="154" width="5" height="9" fill="${P.house}"/>
+    <path d="M228 178 L294 178 L284 160 L238 160Z" fill="${P.thatch}"/>
+    ${wins}<rect x="257" y="183" width="7" height="11" rx="1" fill="#7a4f35"/>
+    <rect x="293" y="180" width="32" height="15" fill="${P.barn}"/>
+    <path d="M290 182 L328 182 L309 166Z" fill="${P.roofBarn}"/>
+    <path d="M303 195 V185 H315 V195 M303 185 L315 195 M315 185 L303 195" stroke="#f4efe6" stroke-width="1.2" fill="none" opacity=".8"/>`;
+}
+
+function cow(x, y) {
+  const legs = [-9, -5, 5, 9].map(lx => `<rect x="${lx - 1.2}" y="-8" width="2.4" height="8" rx="1" fill="#3a3a3a"/>`).join('');
+  return `<g transform="translate(${x} ${y})">${legs}
+    <path d="M12.5 -15 q4 2 3 9" stroke="#2b2b2b" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+    <ellipse cx="0" cy="-12" rx="13" ry="7" fill="#f7f7f2"/>
+    <ellipse cx="4" cy="-14" rx="4" ry="3" fill="#2b2b2b"/><ellipse cx="-5" cy="-10" rx="3" ry="2.2" fill="#2b2b2b"/>
+    <ellipse cx="3" cy="-5.3" rx="2.5" ry="1.6" fill="#f2a3b0"/>
+    <g transform="translate(-11 -14)"><g class="graze">
+      <ellipse cx="-1" cy="-3.5" rx="2.6" ry="1.2" fill="#2b2b2b"/>
+      <ellipse cx="-6" cy="2" rx="6" ry="4.5" fill="#f7f7f2"/>
+      <ellipse cx="-10" cy="4" rx="3" ry="2.6" fill="#f2a3b0"/>
+      <circle cx="-6" cy="0.5" r=".9" fill="#222"/></g></g></g>`;
+}
+
+function tractor(night) {
+  const wheel = (cx, cy, r, dur) => `<g transform="translate(${cx} ${cy})"><circle r="${r}" fill="#2a2a2a"/><g class="spin" style="animation-duration:${dur}s"><circle r="${r * .45}" fill="#ffd23f"/><rect x="-.8" y="${-r * .9}" width="1.6" height="${r * 1.8}" fill="#2a2a2a"/></g></g>`;
+  const puffs = [0, 1, 2].map(k => `<g transform="translate(26 -29)"><circle class="puff" r="3" fill="#d3d8de" style="animation-delay:-${(k * .6).toFixed(1)}s"/></g>`).join('');
+  return `<g transform="translate(0 249)"><g class="drive" style="animation-duration:34s"><g class="bounce">
+    ${puffs}
+    ${night ? '<path d="M34 -12 L78 -22 L78 -1Z" fill="#fff3b0" opacity=".22"/>' : ''}
+    <rect x="25" y="-28" width="2.4" height="11" fill="#444"/>
+    <rect x="12" y="-17" width="22" height="10" rx="2" fill="#4f9d3a"/>
+    <rect x="-2" y="-30" width="16" height="22" rx="2" fill="#4f9d3a"/>
+    <rect x="1" y="-27" width="10" height="9" rx="1" fill="#cfe9ff" opacity=".9"/>
+    ${night ? '<circle cx="34" cy="-12" r="1.8" fill="#fff3b0"/>' : ''}
+    ${wheel(5, -8, 8, 1.1)}${wheel(28, -5, 5, .7)}
+  </g></g></g>`;
+}
+
+function flatScene(s) {
+  const P = palette(s), W = WX[s.weather], R = rng(11);
+  const night = s.time === 'night', clear = s.weather === 'sun' || s.weather === 'wind';
+  const wa = W.windAmt;
+  let o = `<svg viewBox="0 0 480 264" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <defs>
+      <linearGradient id="fSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${P.skyTop}"/><stop offset="1" stop-color="${P.skyBot}"/></linearGradient>
+      <pattern id="fRows" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(-10)"><rect width="12" height="5" fill="${P.stripe}"/></pattern>
+    </defs>
+    <rect width="480" height="264" fill="url(#fSky)"/>`;
+
+  if (night && clear) {
+    o += '<g fill="#fff">';
+    for (let i = 0; i < 45; i++) o += `<circle class="twinkle" cx="${(R() * 480).toFixed(1)}" cy="${(R() * 150).toFixed(1)}" r="${(.6 + R() * .9).toFixed(2)}" style="animation-delay:-${(R() * 4).toFixed(2)}s"/>`;
+    o += '</g>';
+  }
+
+  const cd = 90 - wa * 65;
+  for (let i = 0; i < W.clouds; i++) {
+    const y = 104 + R() * 40, sc = .45 + R() * .55, del = (i / W.clouds) * cd + R() * 5;
+    o += `<g class="drift" style="animation-duration:${cd.toFixed(1)}s;animation-delay:-${del.toFixed(1)}s"><g transform="translate(0 ${y.toFixed(1)}) scale(${sc.toFixed(2)})">${cloudShape(P.cloud, P.cloudShade)}</g></g>`;
+  }
+
+  const spin = 1 / (.1 + wa * 1.1);
+  o += turbine(380, 100, 1, P, spin, 0) + turbine(440, 124, .62, P, spin * 1.1, -.7);
+  o += `<path d="M0 178 C 80 148, 160 158, 240 168 S 400 148, 480 162 V264 H0Z" fill="${P.far}"/>`;
+  o += `<path d="M0 200 C 100 176, 200 184, 300 194 S 420 184, 480 190 V264 H0Z" fill="${P.mid}"/>`;
+  o += `<path d="M0 206 C 60 190, 140 187, 215 193 L 222 228 L0 236Z" fill="url(#fRows)" opacity=".55"/>`;
+  o += tree(212, 192, .85, P, wa, R) + tree(340, 194, .75, P, wa, R) + tree(356, 194, .6, P, wa, R);
+  o += farm(P);
+  o += `<path d="M0 226 C 120 213, 300 219, 480 223 V264 H0Z" fill="${P.front}"/>`;
+  o += `<path d="M0 242 C 150 234, 330 238, 480 240 V252 C 330 250, 150 246, 0 254Z" fill="${P.road}"/>`;
+  o += tree(30, 236, 1.35, P, wa, R) + tree(452, 237, 1.5, P, wa, R);
+  o += cow(112, 232);
+  o += tractor(night);
+
+  if (s.weather === 'rain') {
+    o += '<rect width="480" height="264" fill="#1b2635" opacity=".14"/>';
+    const dx = -(20 + wa * 80);
+    o += '<g stroke="rgba(205,228,255,.75)" stroke-width="1.4" stroke-linecap="round">';
+    for (let i = 0; i < 90; i++) {
+      o += `<g transform="translate(${(R() * 560 - 20).toFixed(1)} 0)"><line class="fall" x1="0" y1="0" x2="${(dx * 11 / 320).toFixed(2)}" y2="11" style="--dx:${dx}px;animation-duration:${(.55 + R() * .3).toFixed(2)}s;animation-delay:-${R().toFixed(2)}s"/></g>`;
+    }
+    o += '</g>';
+  }
+  if (s.weather === 'snow') {
+    const dx = -(10 + wa * 80);
+    o += '<g fill="#fff" opacity=".92">';
+    for (let i = 0; i < 70; i++) {
+      o += `<g transform="translate(${(R() * 540).toFixed(1)} 0)"><g class="fall" style="--dx:${dx}px;animation-duration:${(6 + R() * 5).toFixed(2)}s;animation-delay:-${(R() * 11).toFixed(2)}s"><circle class="flutter" r="${(1.2 + R() * 1.4).toFixed(2)}" style="animation-delay:-${(R() * 2.4).toFixed(2)}s"/></g></g>`;
+    }
+    o += '</g>';
+  }
+  if (s.weather === 'wind') {
+    const cols = ['#e8a33d', '#d9662f', '#7fb24a'];
+    for (let i = 0; i < 12; i++) {
+      o += `<g transform="translate(0 ${(60 + R() * 170).toFixed(1)})"><g class="blow" style="animation-duration:${(2.5 + R() * 2.5).toFixed(2)}s;animation-delay:-${(R() * 5).toFixed(2)}s"><ellipse rx="3.2" ry="1.6" fill="${cols[i % 3]}"/></g></g>`;
+    }
+  }
+  return o + '</svg>';
+}
+
+function smoothPath(pts) {
+  let d = `M${pts[0][0]},${pts[0][1]}`;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2;
+    const c1 = [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6];
+    const c2 = [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6];
+    d += ` C${c1.map(v => v.toFixed(1))} ${c2.map(v => v.toFixed(1))} ${p2}`;
+  }
+  return d;
+}
+
+function flatChart(s) {
+  const W = WX[s.weather], hs = hours(s);
+  const mn = Math.min(...W.temps), mx = Math.max(...W.temps);
+  const pts = W.temps.map((v, i) => [+(32 + i * 59.4).toFixed(1), mx === mn ? 86 : +(108 - (v - mn) / (mx - mn) * 44).toFixed(1)]);
+  const line = smoothPath(pts);
+  let o = `<svg viewBox="0 0 480 150" aria-label="Hourly temperature">
+    <defs><linearGradient id="fArea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--accent);stop-opacity:.28"/><stop offset="1" style="stop-color:var(--accent);stop-opacity:0"/></linearGradient></defs>
+    <path d="${line} L${pts.at(-1)[0]},146 L${pts[0][0]},146Z" fill="url(#fArea)"/>
+    <path d="${line}" fill="none" style="stroke:var(--accent)" stroke-width="3.5" stroke-linecap="round"/>`;
+  pts.forEach(([x, y], i) => {
+    o += `<text x="${x}" y="16" text-anchor="middle" font-size="12.5" font-weight="700" style="fill:var(--muted)">${String(hs[i]).padStart(2, '0')}</text>`;
+    o += `<svg x="${x - 14}" y="${y - 40}" width="28" height="28" viewBox="0 0 32 32">${flatIcon(hourIcon(W.icons[i], hs[i]), false)}</svg>`;
+    o += `<circle cx="${x}" cy="${y}" r="3.6" style="fill:var(--card);stroke:var(--accent)" stroke-width="2.4"/>`;
+    o += `<text x="${x}" y="${y + 25}" text-anchor="middle" font-size="15.5" font-weight="800" style="fill:var(--text)">${W.temps[i]}°</text>`;
+  });
+  return o + '</svg>';
+}
+
+/* ================= B · pixel art ================= */
+const PW = 160, PH = 88;
+const BAYER = [[0, 8, 2, 10], [12, 4, 14, 6], [3, 11, 1, 9], [15, 7, 13, 5]];
+const yFar = x => Math.round(55 + 3 * Math.sin(x / 17) + 2 * Math.sin(x / 6.3 + 1));
+const yMid = x => Math.round(64 + 2.5 * Math.sin(x / 23 + 2) + 1.5 * Math.sin(x / 8.7));
+const yFront = x => Math.round(75 + 1.2 * Math.sin(x / 28 + 1));
+const TURBINES = [{ x: 128, hub: 34, len: 11, ph: 0 }, { x: 147, hub: 43, len: 7, ph: 1 }];
+
+function px(c, x, y, col, w = 1, h = 1) { c.fillStyle = col; c.fillRect(Math.floor(x), Math.floor(y), w, h); }
+function pline(c, x0, y0, x1, y1, col) {
+  x0 = Math.round(x0); y0 = Math.round(y0); x1 = Math.round(x1); y1 = Math.round(y1);
+  const dx = Math.abs(x1 - x0), dy = -Math.abs(y1 - y0), sx = x0 < x1 ? 1 : -1, sy = y0 < y1 ? 1 : -1;
+  let err = dx + dy; c.fillStyle = col;
+  for (;;) {
+    c.fillRect(x0, y0, 1, 1);
+    if (x0 === x1 && y0 === y1) break;
+    const e2 = 2 * err;
+    if (e2 >= dy) { err += dy; x0 += sx; }
+    if (e2 <= dx) { err += dx; y0 += sy; }
+  }
+}
+function sprite(c, rows, map, x, y) {
+  for (let r = 0; r < rows.length; r++) for (let k = 0; k < rows[r].length; k++) {
+    const col = map[rows[r][k]]; if (col) px(c, x + k, y + r, col);
+  }
+}
+
+const ICONS = {
+  sun:    ['...y...', '.y...y.', '..yyy..', 'y.yyy.y', '..yyy..', '.y...y.', '...y...'],
+  partly: ['y..y...', '.yyy...', 'yyyww..', '.ywwww.', 'wwwwwww', '.ddddd.', '.......'],
+  cloud:  ['.......', '..ww...', '.wwwww.', 'wwwwwww', 'wwwwwww', '.ddddd.', '.......'],
+  rain:   ['..gg...', '.gggg..', 'gggggg.', 'ddddddd', '.......', '.b.b.b.', 'b.b.b..'],
+  snow:   ['..gg...', '.gggg..', 'gggggg.', 'ddddddd', '.......', '.c.c.c.', '..c.c..'],
+  moon:   ['..mmm..', '.mmm...', 'mmm....', 'mmm....', 'mmm...m', '.mmmmm.', '..mmm..'],
+  wind:   ['.......', 'sssss..', '.....s.', 'ssssss.', '......s', 'sss..s.', '.......'],
+};
+const ICON_COLORS = { y: '#ffc22e', w: '#ffffff', g: '#dfe5ec', d: '#a3adbb', b: '#4aa3ff', c: '#bfe3ff', m: '#f5e39a', s: '#cfe0ee' };
+
+function drawIcon(c, name, ox, oy) {
+  const rows = ICONS[name];
+  const on = (x, y) => y >= 0 && y < 7 && x >= 0 && x < 7 && rows[y][x] !== '.';
+  c.fillStyle = 'rgba(30,40,58,.85)';
+  for (let y = -1; y <= 7; y++) for (let x = -1; x <= 7; x++) {
+    if (!on(x, y) && (on(x - 1, y) || on(x + 1, y) || on(x, y - 1) || on(x, y + 1))) c.fillRect(ox + 1 + x, oy + 1 + y, 1, 1);
+  }
+  sprite(c, rows, ICON_COLORS, ox + 1, oy + 1);
+}
+
+const TRACTOR = ['........k....', '..GGGG..k....', '..GccG..k....', '..GccGGGGGG..', '.GGGGGGGGGGGl',
+                 'KKKK.....KKK.', 'KhhK.....KhK.', 'KhhK.....KKK.', 'KKKK.........'];
+const COW_A = ['kk........', 'wwkwwwwkww', 'pwwwwkkwwk', '.wwkwwwwww', '.k.k..k.k.', '.k.k..k.k.'];
+const COW_B = ['..........', '..kwwwwkww', 'kwwwwkkwwk', 'wwwkwwwwww', 'pk.k..k.k.', '.k.k..k.k.'];
+const COW_COLORS = { k: '#2b2b2b', w: '#f7f7f2', p: '#f2a3b0' };
+
+function makeCloud(w, h, circles, baseY, P) {
+  const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+  const c = cv.getContext('2d');
+  const inside = (x, y) => y <= baseY && circles.some(([cx, cy, r]) => (x - cx) ** 2 + (y - cy) ** 2 <= r * r);
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    if (inside(x, y)) px(c, x, y, inside(x, y + 1) ? P.cloud : P.cloudShade);
+  }
+  return cv;
+}
+
+function disc(c, cx, cy, r, P, snowy) {
+  const shade = mix(P.tree, '#000000', .2);
+  for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) {
+    if (dx * dx + dy * dy > r * r + r * .8) continue;
+    let col = P.tree;
+    if (dx + dy < -r * .6) col = P.treeHi;
+    else if (dx + dy > r * .7) col = shade;
+    if (snowy && dy < -r * .35) col = P.treeHi;
+    px(c, cx + dx, cy + dy, col);
+  }
+}
+
+class PixelScene {
+  constructor(canvas) {
+    this.ctx = canvas.getContext('2d');
+    this.sky = document.createElement('canvas'); this.sky.width = PW; this.sky.height = PH;
+    this.bg = document.createElement('canvas'); this.bg.width = PW; this.bg.height = PH;
+    this.time = 0; this.prev = performance.now();
+  }
+  set(s) {
+    this.s = s; this.P = palette(s); this.W = WX[s.weather];
+    const R = rng(5), n = this.W.clouds;
+    this.stars = Array.from({ length: 32 }, () => ({ x: Math.floor(R() * PW), y: Math.floor(R() * 46), p: R() * 6 }));
+    this.clouds = Array.from({ length: n }, (_, i) => ({ x: i * (PW + 40) / n + R() * 12, y: Math.floor(34 + R() * 12), big: R() > .45 }));
+    this.cloudImg = {
+      big: makeCloud(28, 12, [[6, 8, 5], [13, 5, 6], [20, 7, 5], [24, 9, 3]], 11, this.P),
+      small: makeCloud(18, 9, [[5, 6, 4], [10, 4, 4], [14, 6, 3]], 8, this.P),
+    };
+    this.drops = Array.from({ length: 80 }, () => ({ x: R() * (PW + 40), y: R() * PH, v: 110 + R() * 50 }));
+    this.flakes = Array.from({ length: 70 }, () => ({ x: R() * (PW + 30), y: R() * PH, v: 7 + R() * 9, p: R() * 6 }));
+    this.leaves = Array.from({ length: 10 }, (_, i) => ({ x: R() * PW * 1.5, y0: 30 + R() * 50, v: 55 + R() * 45, p: R() * 6, c: ['#e8a33d', '#d9662f', '#7fb24a'][i % 3] }));
+    this.trees = [
+      { x: 74, base: yMid(74), r: 3, h: 3 }, { x: 117, base: yMid(117) + 1, r: 3, h: 2 }, { x: 123, base: yMid(123) + 1, r: 2, h: 2 },
+      { x: 12, base: yFront(12) + 2, r: 5, h: 4 }, { x: 150, base: yFront(150) + 2, r: 6, h: 5 },
+    ].map(t => ({ ...t, p: R() * 6 }));
+    this.buildBg();
+    this.render(0);
+  }
+  buildBg() {
+    const sc = this.sky.getContext('2d'), c = this.bg.getContext('2d'), P = this.P, R = rng(9);
+    c.clearRect(0, 0, PW, PH);
+    const img = sc.createImageData(PW, PH), bands = 6, cols = [];
+    for (let i = 0; i < bands; i++) cols.push(hexToRgb(mix(P.skyTop, P.skyBot, i / (bands - 1))));
+    for (let y = 0; y < PH; y++) {
+      const t = Math.min(1, y / 62) * (bands - 1), b = Math.floor(t), f = t - b;
+      for (let x = 0; x < PW; x++) {
+        const col = cols[Math.min(bands - 1, f > (BAYER[y & 3][x & 3] + .5) / 16 ? b + 1 : b)];
+        const i = (y * PW + x) * 4;
+        img.data[i] = col[0]; img.data[i + 1] = col[1]; img.data[i + 2] = col[2]; img.data[i + 3] = 255;
+      }
+    }
+    sc.putImageData(img, 0, 0);
+
+    for (const T of TURBINES) px(c, T.x, T.hub + 1, P.tower, 1, yFar(T.x) - T.hub);
+
+    const farHi = mix(P.far, '#ffffff', .14), midHi = mix(P.mid, '#ffffff', .14), frHi = mix(P.front, '#ffffff', .12);
+    for (let x = 0; x < PW; x++) { const y = yFar(x); px(c, x, y, P.far, 1, PH - y); px(c, x, y, farHi); }
+    for (let x = 0; x < PW; x++) {
+      const y = yMid(x); px(c, x, y, P.mid, 1, PH - y); px(c, x, y, midHi);
+      if (x < 72) for (let yy = y + 2; yy < 78; yy++) if ((yy + Math.floor(x / 5)) % 3 === 0) px(c, x, yy, P.stripe);
+    }
+
+    // farmhouse + barn
+    const base = yMid(92) + 1;
+    px(c, 82, base - 6, P.house, 18, 6);
+    px(c, 95, base - 12, P.house, 1, 3);
+    for (let r = 0; r < 4; r++) px(c, 84 - r, base - 10 + r, r === 0 ? mix(P.thatch, '#000000', .2) : P.thatch, 14 + r * 2, 1);
+    for (const wx of [84, 87, 94, 97]) px(c, wx, base - 4, P.window, 1, 2);
+    px(c, 90, base - 4, '#7a4f35', 2, 4);
+    px(c, 101, base - 5, P.barn, 10, 5);
+    for (let r = 0; r < 4; r++) px(c, 105 - r, base - 9 + r, P.roofBarn, 2 + r * 2, 1);
+
+    for (let x = 0; x < PW; x++) { const y = yFront(x); px(c, x, y, P.front, 1, PH - y); px(c, x, y, frHi); }
+    const tuft = mix(P.front, '#000000', .18);
+    for (let i = 0; i < 45; i++) {
+      const x = Math.floor(R() * PW), y = R() > .5 ? 77 + Math.floor(R() * 2) : 84 + Math.floor(R() * 4);
+      if (y > yFront(x)) px(c, x, y, tuft);
+    }
+    px(c, 0, 79, mix(P.road, '#ffffff', .15), PW, 1);
+    px(c, 0, 80, P.road, PW, 2);
+    px(c, 0, 82, mix(P.road, '#000000', .2), PW, 1);
+    for (let i = 0; i < 18; i++) px(c, Math.floor(R() * PW), 80 + Math.floor(R() * 2), mix(P.road, '#000000', .12));
+  }
+  render(dt) {
+    const c = this.ctx, P = this.P, W = this.W, t = this.time, wa = W.windAmt, w = this.s.weather;
+    const night = this.s.time === 'night', clear = w === 'sun' || w === 'wind';
+    c.drawImage(this.sky, 0, 0);
+
+    if (night && clear) for (const st of this.stars) {
+      const v = Math.sin(t * 1.7 + st.p);
+      if (v > -.35) px(c, st.x, st.y, v > .7 ? '#ffffff' : '#b9c6e6');
+    }
+
+    const sp = 1.2 + wa * 9, span = PW + 40;
+    for (const cl of this.clouds) c.drawImage(cl.big ? this.cloudImg.big : this.cloudImg.small, Math.floor((cl.x + t * sp) % span) - 30, cl.y);
+
+    c.drawImage(this.bg, 0, 0);
+
+    for (const T of TURBINES) {
+      const a = t * (.8 + wa * 6) + T.ph;
+      for (let k = 0; k < 3; k++) {
+        const an = a + k * 2.0944;
+        pline(c, T.x, T.hub, T.x + Math.cos(an) * T.len, T.hub + Math.sin(an) * T.len, P.tower);
+      }
+      px(c, T.x - 1, T.hub - 1, P.tower, 2, 2);
+    }
+
+    const amp = wa > .6 ? 1.6 : wa > .35 ? .8 : .4;
+    for (const T of this.trees) {
+      const off = Math.round(Math.sin(t * (1.5 + wa * 3) + T.p) * amp);
+      px(c, T.x, T.base - T.h, P.trunk, 1, T.h);
+      disc(c, T.x + off, T.base - T.h - T.r + 1, T.r, P, w === 'snow');
+    }
+
+    sprite(c, Math.floor(t / 2.5) % 3 === 0 ? COW_B : COW_A, COW_COLORS, 34, 71);
+
+    const tx = Math.floor((t * 11) % (PW + 30)) - 15, ty = 73 + (Math.floor(t * 5) % 2);
+    for (let k = 0; k < 3; k++) {
+      const ph = (t * 1.2 + k / 3) % 1;
+      c.fillStyle = `rgba(220,225,230,${((1 - ph) * .8).toFixed(2)})`;
+      c.fillRect(tx + 8 - Math.round(ph * 3), ty - 1 - Math.round(ph * 6), 1, 1);
+    }
+    if (night) { c.fillStyle = 'rgba(255,243,176,.22)'; c.fillRect(tx + 13, ty + 3, 9, 3); }
+    sprite(c, TRACTOR, { G: '#4f9d3a', c: '#cfe9ff', k: '#3b3b3b', K: '#222222', h: '#ffd23f', l: night ? '#fff3b0' : '#4f9d3a' }, tx, ty);
+
+    if (w === 'rain') {
+      c.fillStyle = 'rgba(20,30,45,.13)'; c.fillRect(0, 0, PW, PH);
+      c.fillStyle = 'rgba(195,222,255,.8)';
+      for (const d of this.drops) {
+        d.y += d.v * dt; d.x -= (10 + wa * 45) * dt;
+        if (d.y > PH) { d.y = -3; d.x = Math.random() * (PW + 40); }
+        c.fillRect(Math.floor(d.x), Math.floor(d.y), 1, 2);
+      }
+    }
+    if (w === 'snow') {
+      c.fillStyle = '#ffffff';
+      for (const f of this.flakes) {
+        f.y += f.v * dt; f.x += (Math.sin(t * 1.4 + f.p) * 5 - wa * 14) * dt;
+        if (f.y > PH) { f.y = -1; f.x = Math.random() * (PW + 30); }
+        if (f.x < -2) f.x += PW + 20;
+        c.fillRect(Math.floor(f.x), Math.floor(f.y), 1, 1);
+      }
+    }
+    if (w === 'wind') for (const l of this.leaves) {
+      l.x -= l.v * dt;
+      if (l.x < -3) { l.x = PW + Math.random() * 60; l.y0 = 30 + Math.random() * 50; }
+      px(c, l.x, l.y0 + Math.sin(t * 4 + l.p) * 3, l.c, Math.floor(t * 8 + l.p) % 2 ? 2 : 1, 1);
+    }
+  }
+}
+
+const FONT = {
+  '0': ['111', '101', '101', '101', '111'], '1': ['010', '110', '010', '010', '111'], '2': ['111', '001', '111', '100', '111'],
+  '3': ['111', '001', '111', '001', '111'], '4': ['101', '101', '111', '001', '001'], '5': ['111', '100', '111', '001', '111'],
+  '6': ['111', '100', '111', '101', '111'], '7': ['111', '001', '010', '010', '010'], '8': ['111', '101', '111', '101', '111'],
+  '9': ['111', '101', '111', '001', '111'], '-': ['00', '00', '11', '00', '00'], '°': ['11', '11', '00', '00', '00'],
+};
+function pixText(c, str, cx, y, col) {
+  const glyphs = [...str].map(ch => FONT[ch]);
+  const width = glyphs.reduce((a, g) => a + g[0].length + 1, -1);
+  let x = Math.round(cx - width / 2);
+  c.fillStyle = col;
+  for (const g of glyphs) {
+    g.forEach((row, r) => [...row].forEach((b, k) => { if (b === '1') c.fillRect(x + k, y + r, 1, 1); }));
+    x += g[0].length + 1;
+  }
+}
+
+function drawPixelChart(cv, s) {
+  const c = cv.getContext('2d'), W = WX[s.weather], hs = hours(s);
+  const css = getComputedStyle(document.documentElement);
+  const text = css.getPropertyValue('--text').trim(), muted = css.getPropertyValue('--muted').trim(), accent = css.getPropertyValue('--accent').trim();
+  c.clearRect(0, 0, cv.width, cv.height);
+  const xs = W.temps.map((_, i) => 12 + i * 19);
+  const mn = Math.min(...W.temps), mx = Math.max(...W.temps);
+  const ys = W.temps.map(v => mx === mn ? 36 : Math.round(42 - (v - mn) / (mx - mn) * 12));
+
+  c.fillStyle = accent; c.globalAlpha = .35;
+  for (let i = 0; i < xs.length - 1; i++) for (let x = xs[i]; x < xs[i + 1]; x++) {
+    const y = Math.round(ys[i] + (ys[i + 1] - ys[i]) * (x - xs[i]) / (xs[i + 1] - xs[i]));
+    for (let yy = y + 2; yy < 54; yy++) if (BAYER[yy & 3][x & 3] < 9 - (yy - y) * .9) c.fillRect(x, yy, 1, 1);
+  }
+  c.globalAlpha = 1;
+  const dark = mix(accent, '#000000', .25);
+  for (let i = 0; i < xs.length - 1; i++) {
+    pline(c, xs[i], ys[i] + 1, xs[i + 1], ys[i + 1] + 1, dark);
+    pline(c, xs[i], ys[i], xs[i + 1], ys[i + 1], accent);
+  }
+  xs.forEach((x, i) => {
+    const y = ys[i];
+    px(c, x - 1, y - 1, dark, 3, 3); px(c, x, y, '#ffffff');
+    drawIcon(c, hourIcon(W.icons[i], hs[i]), x - 4, y - 14);
+    pixText(c, String(hs[i]).padStart(2, '0'), x, 2, muted);
+    pixText(c, `${W.temps[i]}°`, x, y + 5, text);
+  });
+}
+
+/* ================= wiring ================= */
+const state = { weather: 'sun', time: 'day', theme: matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' };
+let animOn = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+const pixel = new PixelScene(document.getElementById('pixArt'));
+
+document.querySelectorAll('.htitle').forEach(el => el.innerHTML = `${CLOCK} TIMEPROGNOSE`);
+document.querySelectorAll('.tabs').forEach(el => {
+  el.innerHTML = TABS.map((t, i) => `<button aria-pressed="${i === 0}">${t}</button>`).join('');
+  el.addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    el.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b));
+  });
+});
+
+function render() {
+  document.documentElement.dataset.theme = state.theme;
+  document.querySelectorAll('.seg').forEach(seg => seg.querySelectorAll('button').forEach(b =>
+    b.setAttribute('aria-pressed', state[seg.dataset.key] === b.dataset.v)));
+  document.getElementById('flatArt').innerHTML = flatScene(state);
+  document.getElementById('flatHdr').innerHTML = headerHTML(state, 'flat');
+  document.getElementById('flatChart').innerHTML = flatChart(state);
+  document.getElementById('pixHdr').innerHTML = headerHTML(state, 'pixel');
+  const hi = document.querySelector('#pixHdr canvas.hicon');
+  drawIcon(hi.getContext('2d'), hi.dataset.icon, 0, 0);
+  pixel.set(state);
+  drawPixelChart(document.getElementById('pixChart'), state);
+}
+
+document.querySelectorAll('.seg').forEach(seg => seg.addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  state[seg.dataset.key] = b.dataset.v; render();
+}));
+
+const motionBtn = document.getElementById('motion');
+function syncMotion() {
+  document.body.classList.toggle('paused', !animOn);
+  motionBtn.setAttribute('aria-pressed', animOn);
+  motionBtn.textContent = `Animation: ${animOn ? 'on' : 'off'}`;
+}
+motionBtn.addEventListener('click', () => { animOn = !animOn; syncMotion(); });
+
+function loop(now) {
+  requestAnimationFrame(loop);
+  if (!animOn) { pixel.prev = now; return; }
+  const dt = (now - pixel.prev) / 1000;
+  if (dt < 1 / 15) return;
+  pixel.prev = now;
+  const step = Math.min(dt, .1);
+  pixel.time += step;
+  pixel.render(step);
+}
+
+syncMotion();
+render();
+document.fonts?.ready.then(render);
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
