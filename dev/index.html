@@ -18,6 +18,9 @@
   .page { max-width: 1100px; margin: 0 auto; padding: 16px; }
   #controls { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; margin-bottom: 16px; }
   #cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 20px; align-items: start; }
+  body.shot { background: transparent; }
+  body.shot .page { padding: 12px; max-width: none; }
+  body.shot #cards { display: block; width: 496px; }
   h3 { margin: 0 0 6px; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--secondary-text-color); }
 </style>
 </head>

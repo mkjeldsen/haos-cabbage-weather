@@ -2,6 +2,15 @@
 
 A playful, illustrated weather card for Home Assistant, inspired by Carrot Weather.
 
+<p>
+  <img src="docs/pixel-rural.png" width="49%" alt="Pixel art, rural scene on a partly cloudy summer day, with hourly and daily forecast">
+  <img src="docs/flat-city.png" width="49%" alt="Flat vector, Copenhagen street at blue hour with a photographer">
+</p>
+<p>
+  <img src="docs/pixel-seaside-night.png" width="49%" alt="Pixel art, seaside at night with the lighthouse beam">
+  <img src="docs/flat-forest-snow.png" width="49%" alt="Flat vector, snowy forest with a kid on the swing">
+</p>
+
 The top of the card is a little animated landscape that reacts to the weather:
 
 - Rain, snow, sleet, hail, fog and lightning appear when they happen.
@@ -30,7 +39,7 @@ Works on every install type, including Home Assistant Container. Turn on *Advanc
 Settings → Dashboards → ⋮ → **Resources** and add this URL as a *JavaScript module*:
 
 ```
-https://cdn.jsdelivr.net/gh/mkjeldsen/haos-cabbage-weather@v0.1.0/dist/cabbage-weather-card.js
+https://cdn.jsdelivr.net/gh/mkjeldsen/haos-cabbage-weather@v0.1.1/dist/cabbage-weather-card.js
 ```
 
 To update, change the version in the URL to the newest [release](https://github.com/mkjeldsen/haos-cabbage-weather/releases).

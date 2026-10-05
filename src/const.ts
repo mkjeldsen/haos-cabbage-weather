@@ -1,6 +1,6 @@
 import type { CabbageWeatherConfig } from './types';
 
-export const CARD_VERSION = '0.1.0';
+export const CARD_VERSION = '0.1.1';
 
 export const DEFAULTS: Required<Omit<CabbageWeatherConfig, 'type' | 'entity' | 'name' | 'debug_date'>> = {
   scene: 'rural',

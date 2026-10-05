@@ -24,6 +24,8 @@ type Config = CabbageWeatherConfig & typeof DEFAULTS;
 const PIXEL_FONT_ID = 'cabbage-weather-pixel-font';
 const WEEKDAYS = ['Søn', 'Man', 'Tir', 'Ons', 'Tor', 'Fre', 'Lør'];
 const nf1 = new Intl.NumberFormat('da-DK', { maximumFractionDigits: 1 });
+/** Degree sign; pixel style swaps the font's odd glyph for a hollow pixel square (see .pixel .deg). */
+const DEG = html`<span class="deg">°</span>`;
 const INSTANCES = new Set<CabbageWeatherCard>();
 
 const PIN = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>';
@@ -324,10 +326,10 @@ export class CabbageWeatherCard extends LitElement {
             </div>
             <div class="now">
               ${this.icon(conditionIcon(ent.state, night), true, 'hicon')}
-              <span class="temp">${temp !== undefined ? Math.round(temp) : '–'}°</span>
+              <span class="temp">${temp !== undefined ? Math.round(temp) : '–'}${DEG}</span>
               <span class="meta">
-                ${feels !== undefined ? html`<span>Føles som ${Math.round(feels)}°</span>` : nothing}
-                ${range.hi !== undefined ? html`<span><span class="arr">↑</span>${Math.round(range.hi)}° <span class="arr">↓</span>${Math.round(range.lo!)}°</span>` : nothing}
+                ${feels !== undefined ? html`<span>Føles som ${Math.round(feels)}${DEG}</span>` : nothing}
+                ${range.hi !== undefined ? html`<span><span class="arr">↑</span>${Math.round(range.hi)}${DEG} <span class="arr">↓</span>${Math.round(range.lo!)}${DEG}</span>` : nothing}
               </span>
             </div>
             ${line ? html`<p class="snark">${line}</p>` : nothing}
@@ -390,9 +392,9 @@ export class CabbageWeatherCard extends LitElement {
             <span class="dname">${isToday ? 'I dag' : WEEKDAYS[date.getDay()]}</span>
             ${this.icon(conditionIcon(d.condition, false), false, 'dicon')}
             <span class="dprecip">${precip > 0 ? `${nf1.format(precip)} ${u.precipitation}` : d.precipitation_probability ? `${d.precipitation_probability}%` : ''}</span>
-            <span class="lo">${Math.round(lo)}°</span>
+            <span class="lo">${Math.round(lo)}${DEG}</span>
             <span class="bar"><span class="fill" style="left:${((lo - gmin) / span) * 100}%;width:${Math.max(4, ((hi - lo) / span) * 100)}%;background:linear-gradient(90deg, ${tempColor(toC(lo))}, ${tempColor(toC(hi))})"></span></span>
-            <span class="hi">${Math.round(hi)}°</span>
+            <span class="hi">${Math.round(hi)}${DEG}</span>
           </div>`;
         })}
       </div>
@@ -477,6 +479,11 @@ export class CabbageWeatherCard extends LitElement {
       .pixel .temp { font-size: 12cqw; letter-spacing: 0; }
       .pixel .day { font-size: 15px; }
       .pixel .arr { font-family: system-ui, sans-serif; font-weight: 700; }
+      .pixel .deg {
+        display: inline-block; box-sizing: border-box; width: .26em; height: .26em; margin: 0 .04em 0 .08em;
+        border: .08em solid currentColor; vertical-align: .5em; overflow: hidden; text-indent: 2em;
+      }
+      .pixel .hdr .deg { box-shadow: .5cqw .5cqw 0 rgba(10,20,40,.45); }
       .pixel .hdr { text-shadow: .5cqw .5cqw 0 rgba(10,20,40,.45); }
       .pixel .chip { border-radius: 0; background: rgba(10,20,40,.28); box-shadow: inset 0 0 0 max(1px, .4cqw) rgba(255,255,255,.35); }
       .pixel .tabs button { border-radius: 0; border-width: 2px; box-shadow: 2px 2px 0 var(--primary-color); }

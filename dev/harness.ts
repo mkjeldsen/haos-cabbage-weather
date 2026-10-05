@@ -123,7 +123,8 @@ if (q.has('month') || q.has('date')) {
 }
 
 function controls(): void {
-  const el = document.getElementById('controls')!;
+  const el = document.getElementById('controls');
+  if (!el) return;
   const opt = (k: string, list: string[]) => `<label>${k} <select data-k="${k}">${list.map((o) => `<option ${String((ui as any)[k]) === o ? 'selected' : ''}>${o}</option>`).join('')}</select></label>`;
   const num = (k: string, min: number, max: number) => `<label>${k} <input type="number" data-k="${k}" min="${min}" max="${max}" value="${(ui as any)[k]}" style="width:4.5em"></label>`;
   el.innerHTML = [
@@ -161,11 +162,17 @@ function mount(): void {
     card.setConfig({ type: 'custom:cabbage-weather-card', entity: 'weather.forecast_home', scene: ui.scene as any, style: style as any, show_daily: ui.daily, debug_date: q.get('debug') ?? undefined });
     card.hass = h;
     const wrap = document.createElement('div');
-    wrap.innerHTML = `<h3>${style}</h3>`;
+    if (q.get('shot') !== '1') wrap.innerHTML = `<h3>${style}</h3>`;
     wrap.append(card);
     grid.append(wrap);
   }
 }
 
+// ?shot=1: only the card, at a fixed width, for README screenshots.
+if (q.get('shot') === '1') {
+  document.body.classList.add('shot');
+  document.querySelector('h1')?.remove();
+  document.getElementById('controls')?.remove();
+}
 controls();
 mount();
